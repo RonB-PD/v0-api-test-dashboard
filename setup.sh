@@ -78,94 +78,35 @@ fi
 # Create the directory if it doesn't exist
 mkdir -p $APP_DIR || error "Failed to create project directory"
 
-# Step 3: Set up the application manually instead of using create-next-app
-log "Setting up the application manually..."
+# Step 3: Create a simple Next.js app with create-next-app
+log "Creating a new Next.js app..."
+cd $APP_DIR || error "Failed to change to app directory"
 
-# Create package.json
+# Create a temporary package.json for npx
 cat > $APP_DIR/package.json << 'EOF'
 {
-  "name": "api-test-dashboard",
+  "name": "temp",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@radix-ui/react-dialog": "^1.0.5",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
-    "@radix-ui/react-label": "^2.0.2",
-    "@radix-ui/react-popover": "^1.0.7",
-    "@radix-ui/react-select": "^2.0.0",
-    "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-tabs": "^1.0.4",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "date-fns": "^3.3.1",
-    "lucide-react": "^0.363.0",
-    "next": "14.1.0",
-    "react": "^18",
-    "react-day-picker": "^8.10.0",
-    "react-dom": "^18",
-    "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.0",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5"
-  }
+  "private": true
 }
 EOF
 
-# Create tsconfig.json
-cat > $APP_DIR/tsconfig.json << 'EOF'
-{
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-EOF
+# Use create-next-app to set up the project
+npx create-next-app@latest . --typescript --eslint --tailwind --app --src-dir --use-npm --no-git || error "Failed to create Next.js app"
 
-# Create next.config.js
-cat > $APP_DIR/next.config.js << 'EOF'
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+# Step 4: Install additional dependencies
+log "Installing additional dependencies..."
+npm install date-fns lucide-react || error "Failed to install additional dependencies"
 
-module.exports = nextConfig;
-EOF
+# Install Radix UI components
+log "Installing Radix UI components..."
+npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-popover @radix-ui/react-select @radix-ui/react-slot @radix-ui/react-tabs || error "Failed to install Radix UI components"
 
-# Create .eslintrc.json
+# Install other UI dependencies
+log "Installing other UI dependencies..."
+npm install class-variance-authority react-day-picker || error "Failed to install UI dependencies"
+
+# Step 5: Create .eslintrc.json to disable the no-explicit-any rule
 cat > $APP_DIR/.eslintrc.json << 'EOF'
 {
   "extends": "next/core-web-vitals",
@@ -176,207 +117,8 @@ cat > $APP_DIR/.eslintrc.json << 'EOF'
 }
 EOF
 
-# Create postcss.config.js
-cat > $APP_DIR/postcss.config.js << 'EOF'
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-EOF
-
-# Create tailwind.config.js
-cat > $APP_DIR/tailwind.config.js << 'EOF'
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  darkMode: ["class"],
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-    extend: {
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: 0 },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
-}
-EOF
-
-# Create src directory structure
-mkdir -p $APP_DIR/src/app
+# Step 6: Create the UI components directory
 mkdir -p $APP_DIR/src/components/ui
-mkdir -p $APP_DIR/src/lib
-
-# Create globals.css
-mkdir -p $APP_DIR/src/app
-cat > $APP_DIR/src/app/globals.css << 'EOF'
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
- 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
- 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
-}
- 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-EOF
-
-# Create layout.tsx
-cat > $APP_DIR/src/app/layout.tsx << 'EOF'
-import type { Metadata } from "next";
-import { Inter } from 'next/font/google';
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "API Test Dashboard",
-  description: "Dashboard for API test results with filterable tables and status indicators",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
-  );
-}
-EOF
 
 # Create utils.ts
 mkdir -p $APP_DIR/src/lib
@@ -388,9 +130,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 EOF
-
-# Create UI components
-mkdir -p $APP_DIR/src/components/ui
 
 # Create button.tsx
 cat > $APP_DIR/src/components/ui/button.tsx << 'EOF'
@@ -886,7 +625,7 @@ export {
 }
 EOF
 
-# Create dropdown-menu.tsx
+# Create dropdown-menu.tsx - Fixed version
 cat > $APP_DIR/src/components/ui/dropdown-menu.tsx << 'EOF'
 "use client"
 
@@ -1001,7 +740,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
-  </DropdownMenuCheckboxItem>
+  </DropdownMenuPrimitive.CheckboxItem>
 ))
 DropdownMenuCheckboxItem.displayName =
   DropdownMenuPrimitive.CheckboxItem.displayName
@@ -1024,7 +763,7 @@ const DropdownMenuRadioItem = React.forwardRef<
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
-  </DropdownMenuRadioItem>
+  </DropdownMenuPrimitive.RadioItem>
 ))
 DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName
 
@@ -1780,9 +1519,6 @@ export function ApiTestDashboard() {
                           {test.method}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <StatusBadge status={test.status} />
-                      </TableCell>
                       <TableCell>{test.responseTime !== null ? `${test.responseTime} ms` : "-"}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {format(test.timestamp, "MMM dd, yyyy HH:mm")}
@@ -1877,17 +1613,12 @@ export default function Home() {
 }
 EOF
 
-# Install dependencies
-log "Installing dependencies..."
-cd $APP_DIR || error "Failed to change to app directory"
-npm install || error "Failed to install dependencies"
-
-# Step 5: Build the application
+# Step 7: Build the application
 log "Building the application..."
 cd $APP_DIR || error "Failed to change to app directory"
 npm run build || error "Failed to build the application"
 
-# Step 6: Create systemd service file
+# Step 8: Create systemd service file
 log "Creating systemd service file..."
 cat > /etc/systemd/system/$APP_NAME.service << EOF
 [Unit]
@@ -1908,7 +1639,7 @@ Environment=PORT=$APP_PORT
 WantedBy=multi-user.target
 EOF
 
-# Step 7: Configure Nginx
+# Step 9: Configure Nginx
 log "Configuring Nginx as a reverse proxy..."
 cat > $NGINX_CONF << EOF
 server {
@@ -1938,19 +1669,19 @@ ln -sf $NGINX_CONF /etc/nginx/sites-enabled/ || error "Failed to enable Nginx si
 # Test Nginx configuration
 nginx -t || error "Nginx configuration test failed"
 
-# Step 8: Set permissions
+# Step 10: Set permissions
 log "Setting correct permissions..."
 chown -R www-data:www-data $APP_DIR || error "Failed to set permissions"
 chmod -R 755 $APP_DIR || error "Failed to set permissions"
 
-# Step 9: Start and enable services
+# Step 11: Start and enable services
 log "Starting and enabling services..."
 systemctl daemon-reload || error "Failed to reload systemd"
 systemctl enable $APP_NAME.service || error "Failed to enable app service"
 systemctl start $APP_NAME.service || error "Failed to start app service"
 systemctl restart nginx || error "Failed to restart Nginx"
 
-# Step 10: Final message
+# Step 12: Final message
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
 log "Setup completed successfully!"
 log "You can access your API Test Dashboard at: http://$IP_ADDRESS"
